@@ -2,13 +2,5 @@ name = "moonvault"
 main = "worker.js"
 compatibility_date = "2024-01-01"
 
-# ─── Static assets (index.html) served via Workers KV Sites ─────────────────
-[site]
-bucket = "./public"
-
-# ─── Environment variables ───────────────────────────────────────────────────
-# Set your real TMDB key with:
-#   wrangler secret put TMDB_API_KEY
-# Or add it below for local dev only (never commit real keys):
 [vars]
-# TMDB_API_KEY = "05cc08d507ec64e49baa371743d450cf"   # ← uncomment only for testing locally
+TMDB_API_KEY = "05cc08d507ec64e49baa371743d450cf"
