@@ -133,11 +133,23 @@ function extractDownloads(htmlText) {
 
   const results = [];
   const seen    = new Set();
-  const linkRe  = /<a\s[^>]*href="([^"#][^"]*)"[^>]*>([\s\S]*?)<\/a>/gi;
-  let m;
-  while ((m = linkRe.exec(htmlText)) !== null) {
-    const href = m[1].trim();
-    const raw  = m[2];
+
+  // Track last heading text for quality detection (same as Render's find_previous logic)
+  let lastHeadingText = '';
+
+  // Scan headings AND links together in document order
+  const combinedRe = /(<h[2-5][^>]*>([\s\S]*?)<\/h[2-5]>)|(<a\s[^>]*href="([^"#][^"]*)"[^>]*>([\s\S]*?)<\/a>)/gi;
+  let cm;
+  while ((cm = combinedRe.exec(htmlText)) !== null) {
+    if (cm[1]) {
+      // It's a heading — save its text for next links
+      lastHeadingText = cm[2].replace(/<[^>]+>/g, '').trim();
+      continue;
+    }
+
+    // It's a link
+    const href = cm[4].trim();
+    const raw  = cm[5];
     const txt  = raw.replace(/<[^>]+>/g, '').trim();
     const combined = (href + txt).toLowerCase();
 
@@ -152,10 +164,19 @@ function extractDownloads(htmlText) {
     if (isHost || isTextDl) {
       if (seen.has(href)) continue;
       seen.add(href);
+
+      // 3-step quality detection (mirrors Render's Python logic):
+      // 1. From last heading before this link
+      let quality = qualityLabel(lastHeadingText);
+      // 2. From link text
+      if (quality === 'N/A') quality = qualityLabel(txt);
+      // 3. From URL itself
+      if (quality === 'N/A') quality = qualityLabel(href);
+
       results.push({
         name:    txt || 'Download',
         url:     href,
-        quality: qualityLabel(txt + href),
+        quality: quality,
         size:    'N/A',
       });
     }
