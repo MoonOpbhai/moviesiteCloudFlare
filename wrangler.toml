@@ -11,4 +11,4 @@ bucket = "./public"
 #   wrangler secret put TMDB_API_KEY
 # Or add it below for local dev only (never commit real keys):
 [vars]
-# TMDB_API_KEY = "your_key_here"   # ← uncomment only for testing locally
+# TMDB_API_KEY = "05cc08d507ec64e49baa371743d450cf"   # ← uncomment only for testing locally
